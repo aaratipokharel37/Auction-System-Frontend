@@ -1,7 +1,12 @@
 import React from 'react';
 import { Menu } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    navigate({ to: '/auth/login' });
+  };
   return (
     <nav className="bg-gray-900 sticky top-0 z-50 shadow-md animate-slideDown">
       <div className="">
@@ -44,7 +49,7 @@ const Navbar = () => {
               </a>
             </li>
             <li>
-              <button className="gradient-gold bg-red-400 text-white px-7! py-1! rounded-full font-semibold hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-xl">
+              <button onClick={() => handleLogout()} className="gradient-gold bg-red-400 text-white px-7! py-1! rounded-full font-semibold hover:-translate-y-0.5 transition-all duration-300 shadow-lg hover:shadow-xl">
                 Log Out
               </button>
             </li>
