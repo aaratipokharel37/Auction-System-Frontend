@@ -1,11 +1,25 @@
 import React from 'react';
 import { Menu } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
+import { toast } from 'sonner';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const handleLogout = () => {
-    navigate({ to: '/auth/login' });
+    try{
+      const token = localStorage.getItem("token")
+      const user = localStorage.getItem("user")
+      if(token){
+        localStorage.removeItem("token")
+      }
+      if(user){
+        localStorage.removeItem("user")
+      }
+      navigate({ to: '/auth/login' });
+    }catch(err){
+      toast.error("Unable to logout")
+    }
+  
   };
   return (
     <nav className="bg-gray-900 sticky top-0 z-50 shadow-md animate-slideDown">

@@ -1,60 +1,97 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import { login } from "@/queries/auth";
+import { toast } from "sonner";
+import PrimaryButton from "../shared/PrimaryButton";
 
+/* ── Reusable helpers ───────────────────────────────────────────── */
+const Field = ({ label, error, children }) => (
+  <div className="flex flex-col gap-1.5">
+    <span className="text-xs font-semibold uppercase tracking-widest text-stone-600">
+      {label}
+    </span>
+    {children}
+    {error && <span className="text-xs text-red-500">{error}</span>}
+  </div>
+);
+
+/* ── Main Component ─────────────────────────────────────────────── */
 const Login = () => {
+  /* ── State ─────────────────────────────────────────────────── */
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
+
+  const [showPw, setShowPw] = useState(false);
   const [errors, setErrors] = useState({});
 
+  const navigate = useNavigate();
+
+  /* ── Mutation ─────────────────────────────────────────────── */
+  const { mutate: loginUser, isPending } = useMutation({
+    mutationFn: login,
+    onSuccess: (data) => {
+      toast.success("Login successful");
+
+
+    // Save auth data
+    localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      navigate({ to: "/" }); // home
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+
+  /* ── Handlers ─────────────────────────────────────────────── */
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
+    setFormData((p) => ({ ...p, [name]: value }));
+    if (errors[name]) setErrors((p) => ({ ...p, [name]: "" }));
   };
 
-  const validateForm = () => {
-    const newErrors = {};
 
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
-    }
+  /* ── Validation ───────────────────────────────────────────── */
+  const validate = () => {
+    const e = {};
+    if (!formData.email) e.email = "Email is required.";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      e.email = "Invalid email address.";
 
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
+    if (!formData.password) e.password = "Password is required.";
+    else if (formData.password.length < 6)
+      e.password = "Password must be at least 6 characters.";
 
-    return newErrors;
+    return e;
   };
 
-  const handleSubmit = (e) => {
+
+   /* ── Submit ─────────────────────────────────────────────── */
+   const handleSubmit = (e) => {
     e.preventDefault();
-    const newErrors = validateForm();
-
-    if (Object.keys(newErrors).length === 0) {
-      // Submit form
-      console.log('Login data:', formData);
-      // Add your login logic here
-    } else {
+    const newErrors = validate();
+    if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      return;
     }
+    loginUser(formData);
   };
+
+  /* ── Input class helper ───────────────────────────────────── */
+  const inputCls = (err) =>
+    [
+      "w-full pl-10 pr-4 py-3 rounded-xl border-2 bg-white text-stone-800 text-sm",
+      "placeholder-stone-300 outline-none transition-all duration-200",
+      "focus:ring-2 focus:ring-yellow-400/30",
+      err
+        ? "border-red-400 focus:border-red-400"
+        : "border-stone-200 focus:border-yellow-500",
+    ].join(" ");
+  
 
   return (
     <div className="min-h-screen gradient-primary flex items-center justify-center px-4 py-12 relative overflow-hidden">
@@ -108,7 +145,7 @@ const Login = () => {
                   <Lock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPw ? 'text' : 'password'}
                   id="password"
                   name="password"
                   value={formData.password}
@@ -120,10 +157,10 @@ const Login = () => {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowPw(!showPw)}
                   className="absolute inset-y-0 right-0 pr-4 flex items-center"
                 >
-                  {showPassword ? (
+                  {showPw ? (
                     <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   ) : (
                     <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
