@@ -58,7 +58,7 @@ const Register = () => {
       toast.success("User has been registered successfully");
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("token", data.token);
-      if (data.token) navigate({ to: "/auth/login" });
+      if (data.token) navigate({ to: "/" });
     },
     onError: (error) => toast.error(error.message)
   });
@@ -397,7 +397,7 @@ const Register = () => {
             {/* Sign in */}
             <p className="mt-7 text-center text-sm text-stone-500">
               Already have an account?{" "}
-              <Link to="/auth/login" className="text-yellow-600 font-semibold hover:underline">
+              <Link to="/login" className="text-yellow-600 font-semibold hover:underline">
                 Sign in →
               </Link>
             </p>

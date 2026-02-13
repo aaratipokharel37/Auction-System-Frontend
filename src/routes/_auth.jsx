@@ -1,21 +1,19 @@
 import { Outlet, createFileRoute, useNavigate } from '@tanstack/react-router'
-import Navbar from '@/components/shared/Navbar'
 import { useEffect } from 'react'
 
-export const Route = createFileRoute('/_authenticated')({
+export const Route = createFileRoute('/_auth')({
   component: () => {
     const navigate = useNavigate()
 
     useEffect(() => {
       const token = localStorage.getItem('token')
-      if (!token) {
-        navigate({ to: '/login' }) // redirect to login if not authenticated
+      if (token) {
+        navigate({ to: '/' }) // redirect to homepage if authenticated
       }
     }, [navigate])
 
     return (
       <>
-        <Navbar />
         <Outlet />
       </>
     )
