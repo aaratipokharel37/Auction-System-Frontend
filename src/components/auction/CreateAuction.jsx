@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import axios from 'axios';
 
 const CreateAuction = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -11,8 +14,10 @@ const CreateAuction = () => {
     endTime: '',
   });
 
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -20,83 +25,109 @@ const CreateAuction = () => {
       ...prev,
       [name]: value
     }));
+    setError(''); // Clear error when user types
   };
 
   const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
+    const file = e.target.files[0];
 
-    if (selectedFiles.length + files.length > 10) {
-      alert('Maximum 10 images allowed');
+    if (!file) return;
+
+    // Validate file type
+    const allowedFormats = ['image/png', 'image/jpeg', 'image/webp'];
+    if (!allowedFormats.includes(file.type)) {
+      setError('Only PNG, JPEG, and WEBP formats are allowed');
       return;
     }
 
-    files.forEach(file => {
-      if (file.type.startsWith('image/')) {
-        setSelectedFiles(prev => [...prev, file]);
+    // Validate file size (e.g., max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size must be less than 5MB');
+      return;
+    }
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setImagePreviews(prev => [...prev, {
-            url: e.target.result,
-            file: file
-          }]);
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+    setSelectedFile(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
+    setError('');
   };
 
-  const removeImage = (index) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  const removeImage = () => {
+    setSelectedFile(null);
+    setImagePreview(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
-    if (selectedFiles.length === 0) {
-      alert('Please upload at least one image');
+    // Validation
+    if (!selectedFile) {
+      setError('Please upload an auction item image');
       return;
     }
 
     const startTime = new Date(formData.startTime);
     const endTime = new Date(formData.endTime);
+    const now = new Date();
 
-    if (endTime <= startTime) {
-      alert('End time must be after start time');
+    if (startTime < now) {
+      setError('Auction starting time must be greater than present time');
       return;
     }
 
-    const submitData = new FormData();
-    Object.keys(formData).forEach(key => {
-      submitData.append(key, formData[key]);
-    });
+    if (startTime >= endTime) {
+      setError('Auction starting time must be less than ending time');
+      return;
+    }
 
-    selectedFiles.forEach((file) => {
-      submitData.append('images', file);
-    });
+    setIsSubmitting(true);
+
+    // Create FormData
+    const submitData = new FormData();
+    submitData.append('title', formData.title);
+    submitData.append('category', formData.category);
+    submitData.append('description', formData.description);
+    submitData.append('condition', formData.condition);
+    submitData.append('startingBid', formData.startingBid);
+    submitData.append('startTime', formData.startTime);
+    submitData.append('endTime', formData.endTime);
+    submitData.append('image', selectedFile); // Note: backend expects 'image' not 'images'
 
     try {
-      // Replace with your API endpoint
-      const response = await fetch('http://localhost:5000/api/auctions/create', {
-        method: 'POST',
-        body: submitData,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      const token = localStorage.getItem('token');
+      
+      const response = await axios.post(
+        'http://localhost:5000/api/v1/auctionitem/create',
+        submitData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          },
+          withCredentials: true // If you're using cookies
         }
-      });
+      );
 
-      if (response.ok) {
-        alert('Auction created successfully!');
-
-        // Redirect to auction page or dashboard
-        window.location.href = '/auctions';
-      } else {
-        alert('Failed to create auction. Please try again.');
+      if (response.data.success) {
+        alert(response.data.message || 'Auction created successfully!');
+        navigate({ to: '/my-auctions' }); // or wherever you want to redirect
       }
     } catch (error) {
       console.error('Error creating auction:', error);
-      alert('An error occurred. Please try again.');
+      
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError('An error occurred while creating the auction. Please try again.');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -124,6 +155,14 @@ const CreateAuction = () => {
             </h2>
             <p className="text-gray-400">List your exceptional item for bidding</p>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
+              <p className="font-semibold">Error</p>
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Auction Details Section */}
@@ -229,6 +268,7 @@ const CreateAuction = () => {
                   step="0.01"
                   required
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                  placeholder="Enter starting bid amount"
                 />
               </div>
             </div>
@@ -275,19 +315,18 @@ const CreateAuction = () => {
             {/* Image Upload Section */}
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-700 border-b-2 border-yellow-500 pb-2 inline-block">
-                Auction Item Images
+                Auction Item Image
               </h3>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Click to upload or drag and drop
+                  Upload Image <span className="text-red-500">*</span>
                 </label>
 
                 <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 hover:border-yellow-500 transition-all bg-gray-50">
                   <input
                     type="file"
-                    accept="image/*"
-                    multiple
+                    accept="image/png,image/jpeg,image/webp"
                     onChange={handleImageUpload}
                     className="block w-full text-sm text-gray-600
                       file:mr-4 file:py-2 file:px-4
@@ -299,25 +338,30 @@ const CreateAuction = () => {
                       file:transition-all"
                   />
                   <p className="text-sm text-gray-500 mt-2">
-                    SVG, PNG, JPG or GIF (MAX. 800x400px)
+                    PNG, JPEG or WEBP (MAX. 5MB)
                   </p>
                 </div>
               </div>
 
-              {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative aspect-square border-2 border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                      <img src={preview.url} alt="" className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold shadow-md transition-all"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
+              {imagePreview && (
+                <div className="relative w-full max-w-md mx-auto">
+                  <div className="relative aspect-square border-2 border-gray-200 rounded-xl overflow-hidden shadow-lg">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      className="w-full h-full object-cover" 
+                    />
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-md transition-all"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <p className="text-center text-sm text-gray-600 mt-2">
+                    {selectedFile?.name}
+                  </p>
                 </div>
               )}
             </div>
@@ -326,16 +370,26 @@ const CreateAuction = () => {
             <div className="pt-6">
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-yellow-500 to-yellow-700 text-white py-3 rounded-xl font-semibold hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-lg"
+                disabled={isSubmitting}
+                className="w-full bg-gradient-to-r from-yellow-500 to-yellow-700 text-white py-3 rounded-xl font-semibold hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                Create Auction
+                {isSubmitting ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating Auction...
+                  </span>
+                ) : (
+                  'Create Auction'
+                )}
               </button>
             </div>
 
           </form>
         </div>
 
-      
       </div>
     </div>
   );
