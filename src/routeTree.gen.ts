@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedMyAuctionsRouteImport } from './routes/_authenticated/my-auctions'
-import { Route as AuthenticatedCreateAuctionRouteImport } from './routes/_authenticated/create-auction'
+import { Route as AuthenticatedAuctionDetailsRouteImport } from './routes/_authenticated/auction-details'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
+import { Route as AuthenticatedAuctionMyAuctionsRouteImport } from './routes/_authenticated/_auction/my-auctions'
+import { Route as AuthenticatedAuctionCreateAuctionRouteImport } from './routes/_authenticated/_auction/create-auction'
+import { Route as AuthenticatedAuctionAuctionAuctionIdRouteImport } from './routes/_authenticated/_auction/auction/$auctionId'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -30,15 +32,10 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedMyAuctionsRoute = AuthenticatedMyAuctionsRouteImport.update({
-  id: '/my-auctions',
-  path: '/my-auctions',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedCreateAuctionRoute =
-  AuthenticatedCreateAuctionRouteImport.update({
-    id: '/create-auction',
-    path: '/create-auction',
+const AuthenticatedAuctionDetailsRoute =
+  AuthenticatedAuctionDetailsRouteImport.update({
+    id: '/auction-details',
+    path: '/auction-details',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
@@ -51,20 +48,42 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthenticatedAuctionMyAuctionsRoute =
+  AuthenticatedAuctionMyAuctionsRouteImport.update({
+    id: '/_auction/my-auctions',
+    path: '/my-auctions',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAuctionCreateAuctionRoute =
+  AuthenticatedAuctionCreateAuctionRouteImport.update({
+    id: '/_auction/create-auction',
+    path: '/create-auction',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAuctionAuctionAuctionIdRoute =
+  AuthenticatedAuctionAuctionAuctionIdRouteImport.update({
+    id: '/_auction/auction/$auctionId',
+    path: '/auction/$auctionId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
-  '/create-auction': typeof AuthenticatedCreateAuctionRoute
-  '/my-auctions': typeof AuthenticatedMyAuctionsRoute
+  '/auction-details': typeof AuthenticatedAuctionDetailsRoute
+  '/create-auction': typeof AuthenticatedAuctionCreateAuctionRoute
+  '/my-auctions': typeof AuthenticatedAuctionMyAuctionsRoute
+  '/auction/$auctionId': typeof AuthenticatedAuctionAuctionAuctionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
-  '/create-auction': typeof AuthenticatedCreateAuctionRoute
-  '/my-auctions': typeof AuthenticatedMyAuctionsRoute
+  '/auction-details': typeof AuthenticatedAuctionDetailsRoute
+  '/create-auction': typeof AuthenticatedAuctionCreateAuctionRoute
+  '/my-auctions': typeof AuthenticatedAuctionMyAuctionsRoute
+  '/auction/$auctionId': typeof AuthenticatedAuctionAuctionAuctionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -72,24 +91,42 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
-  '/_authenticated/create-auction': typeof AuthenticatedCreateAuctionRoute
-  '/_authenticated/my-auctions': typeof AuthenticatedMyAuctionsRoute
+  '/_authenticated/auction-details': typeof AuthenticatedAuctionDetailsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/_auction/create-auction': typeof AuthenticatedAuctionCreateAuctionRoute
+  '/_authenticated/_auction/my-auctions': typeof AuthenticatedAuctionMyAuctionsRoute
+  '/_authenticated/_auction/auction/$auctionId': typeof AuthenticatedAuctionAuctionAuctionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/create-auction' | '/my-auctions'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/auction-details'
+    | '/create-auction'
+    | '/my-auctions'
+    | '/auction/$auctionId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/create-auction' | '/my-auctions'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/auction-details'
+    | '/create-auction'
+    | '/my-auctions'
+    | '/auction/$auctionId'
   id:
     | '__root__'
     | '/_auth'
     | '/_authenticated'
     | '/_auth/login'
     | '/_auth/register'
-    | '/_authenticated/create-auction'
-    | '/_authenticated/my-auctions'
+    | '/_authenticated/auction-details'
     | '/_authenticated/'
+    | '/_authenticated/_auction/create-auction'
+    | '/_authenticated/_auction/my-auctions'
+    | '/_authenticated/_auction/auction/$auctionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -120,18 +157,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/my-auctions': {
-      id: '/_authenticated/my-auctions'
-      path: '/my-auctions'
-      fullPath: '/my-auctions'
-      preLoaderRoute: typeof AuthenticatedMyAuctionsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/create-auction': {
-      id: '/_authenticated/create-auction'
-      path: '/create-auction'
-      fullPath: '/create-auction'
-      preLoaderRoute: typeof AuthenticatedCreateAuctionRouteImport
+    '/_authenticated/auction-details': {
+      id: '/_authenticated/auction-details'
+      path: '/auction-details'
+      fullPath: '/auction-details'
+      preLoaderRoute: typeof AuthenticatedAuctionDetailsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_auth/register': {
@@ -147,6 +177,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/_authenticated/_auction/my-auctions': {
+      id: '/_authenticated/_auction/my-auctions'
+      path: '/my-auctions'
+      fullPath: '/my-auctions'
+      preLoaderRoute: typeof AuthenticatedAuctionMyAuctionsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/_auction/create-auction': {
+      id: '/_authenticated/_auction/create-auction'
+      path: '/create-auction'
+      fullPath: '/create-auction'
+      preLoaderRoute: typeof AuthenticatedAuctionCreateAuctionRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/_auction/auction/$auctionId': {
+      id: '/_authenticated/_auction/auction/$auctionId'
+      path: '/auction/$auctionId'
+      fullPath: '/auction/$auctionId'
+      preLoaderRoute: typeof AuthenticatedAuctionAuctionAuctionIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
@@ -164,15 +215,21 @@ const AuthRouteChildren: AuthRouteChildren = {
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedCreateAuctionRoute: typeof AuthenticatedCreateAuctionRoute
-  AuthenticatedMyAuctionsRoute: typeof AuthenticatedMyAuctionsRoute
+  AuthenticatedAuctionDetailsRoute: typeof AuthenticatedAuctionDetailsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedAuctionCreateAuctionRoute: typeof AuthenticatedAuctionCreateAuctionRoute
+  AuthenticatedAuctionMyAuctionsRoute: typeof AuthenticatedAuctionMyAuctionsRoute
+  AuthenticatedAuctionAuctionAuctionIdRoute: typeof AuthenticatedAuctionAuctionAuctionIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedCreateAuctionRoute: AuthenticatedCreateAuctionRoute,
-  AuthenticatedMyAuctionsRoute: AuthenticatedMyAuctionsRoute,
+  AuthenticatedAuctionDetailsRoute: AuthenticatedAuctionDetailsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedAuctionCreateAuctionRoute:
+    AuthenticatedAuctionCreateAuctionRoute,
+  AuthenticatedAuctionMyAuctionsRoute: AuthenticatedAuctionMyAuctionsRoute,
+  AuthenticatedAuctionAuctionAuctionIdRoute:
+    AuthenticatedAuctionAuctionAuctionIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

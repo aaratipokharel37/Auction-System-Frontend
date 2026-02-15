@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createAuction } from '@/queries/auction';
 import { toast } from 'sonner';
 
 const CreateAuction = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient()
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -24,6 +25,8 @@ const CreateAuction = () => {
     mutationFn: (submitData) => createAuction(submitData),
     onSuccess: (data) => {
       toast.success(data.message || 'Auction created successfully!');
+      queryClient.invalidateQueries({ queryKey: ['my-auctions'] });
+      queryClient.invalidateQueries({ queryKey: ['all-auctions'] });
       navigate({ to: '/my-auctions' });
     },
     onError: (error) => {

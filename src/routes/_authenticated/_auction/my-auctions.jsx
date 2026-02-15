@@ -1,7 +1,7 @@
 import MyAuctions from '@/components/auction/MyAuctions';
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_authenticated/my-auctions')({
+export const Route = createFileRoute('/_authenticated/_auction/my-auctions')({
   beforeLoad: () => {
     const user = JSON.parse(localStorage.getItem("user"));
 

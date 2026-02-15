@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Clock } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 
 const BidCard = ({ auction, delay }) => {
   const [timeLeft, setTimeLeft] = useState('');
@@ -37,8 +38,10 @@ const BidCard = ({ auction, delay }) => {
   const currentBid = auction.currentBid || auction.startingBid;
   const totalBids = auction.bids?.length || 0;
 
+
   return (
-    <div className={`bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 animate-scaleIn stagger-${delay} cursor-pointer`}>
+    <Link to={`/auction/${auction._id}`}>
+       <div className={`bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 animate-scaleIn stagger-${delay} cursor-pointer`}>
       <div className="relative overflow-hidden group">
         <img 
           src={auction.image?.url || auction.image} 
@@ -91,6 +94,7 @@ const BidCard = ({ auction, delay }) => {
         </div>
       </div>
     </div>
+    </Link>
   );
 };
 
