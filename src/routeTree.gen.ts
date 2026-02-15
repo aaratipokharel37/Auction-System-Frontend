@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedMyAuctionsRouteImport } from './routes/_authenticated/my-auctions'
 import { Route as AuthenticatedCreateAuctionRouteImport } from './routes/_authenticated/create-auction'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
@@ -27,6 +28,11 @@ const AuthRoute = AuthRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedMyAuctionsRoute = AuthenticatedMyAuctionsRouteImport.update({
+  id: '/my-auctions',
+  path: '/my-auctions',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCreateAuctionRoute =
@@ -51,12 +57,14 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/create-auction': typeof AuthenticatedCreateAuctionRoute
+  '/my-auctions': typeof AuthenticatedMyAuctionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/create-auction': typeof AuthenticatedCreateAuctionRoute
+  '/my-auctions': typeof AuthenticatedMyAuctionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -65,13 +73,14 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_authenticated/create-auction': typeof AuthenticatedCreateAuctionRoute
+  '/_authenticated/my-auctions': typeof AuthenticatedMyAuctionsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/create-auction'
+  fullPaths: '/' | '/login' | '/register' | '/create-auction' | '/my-auctions'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/create-auction'
+  to: '/' | '/login' | '/register' | '/create-auction' | '/my-auctions'
   id:
     | '__root__'
     | '/_auth'
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/register'
     | '/_authenticated/create-auction'
+    | '/_authenticated/my-auctions'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
@@ -108,6 +118,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/my-auctions': {
+      id: '/_authenticated/my-auctions'
+      path: '/my-auctions'
+      fullPath: '/my-auctions'
+      preLoaderRoute: typeof AuthenticatedMyAuctionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/create-auction': {
@@ -148,11 +165,13 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface AuthenticatedRouteChildren {
   AuthenticatedCreateAuctionRoute: typeof AuthenticatedCreateAuctionRoute
+  AuthenticatedMyAuctionsRoute: typeof AuthenticatedMyAuctionsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCreateAuctionRoute: AuthenticatedCreateAuctionRoute,
+  AuthenticatedMyAuctionsRoute: AuthenticatedMyAuctionsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 
