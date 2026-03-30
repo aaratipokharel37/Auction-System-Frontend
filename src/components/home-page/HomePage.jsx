@@ -4,10 +4,10 @@ import AuctionGrid from './AuctionGrid'
 function HomePage() {
   return (
     <>
-    <Hero />
-   <div className="px-10! mt-20!">
-   <AuctionGrid />
-   </div>
+      <Hero />
+      <div className="px-10! mt-20!">
+        <AuctionGrid />
+      </div>
     </>
   )
 }

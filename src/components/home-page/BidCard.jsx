@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Clock } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import { getApprovalState, approvalLabel, APPROVAL_APPROVED } from '@/lib/auction-approval';
 
-const BidCard = ({ auction, delay }) => {
+const BidCard = ({ auction, delay, showApprovalStatus = false }) => {
   const [timeLeft, setTimeLeft] = useState('');
 
   useEffect(() => {
@@ -37,63 +38,79 @@ const BidCard = ({ auction, delay }) => {
 
   const currentBid = auction.currentBid || auction.startingBid;
   const totalBids = auction.bids?.length || 0;
-
+  const approvalState = getApprovalState(auction);
+  const showModerationBadge = showApprovalStatus && approvalState !== APPROVAL_APPROVED;
 
   return (
     <Link to={`/auction/${auction._id}`}>
-       <div className={`bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 animate-scaleIn stagger-${delay} cursor-pointer`}>
-      <div className="relative overflow-hidden group">
-        <img 
-          src={auction.image?.url || auction.image} 
-          alt={auction.title} 
-          className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-700"
-        />
-        {auction.condition && (
-          <span className="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold bg-blue-600 bg-opacity-90 text-white backdrop-blur-sm">
-            {auction.condition}
-          </span>
-        )}
-      </div>
-      
-      <div className="p-6">
-        <div className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
-          {auction.category}
-        </div>
-        <h3 className="font-display text-2xl font-semibold text-primary mb-4">
-          {auction.title}
-        </h3>
-        
-        {auction.description && (
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-            {auction.description}
-          </p>
-        )}
-        
-        <div className="grid grid-cols-2 gap-4 mb-4 p-4 bg-gray-50 rounded-xl">
-          <div>
-            <label className="text-xs text-gray-500 uppercase tracking-wider block mb-1">
-              Current Bid
-            </label>
-            <div className="font-display text-2xl font-bold text-primary">
-              ${currentBid.toLocaleString()}
-            </div>
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 uppercase tracking-wider block mb-1">
-              Total Bids
-            </label>
-            <div className="font-display text-2xl font-bold text-primary">
-              {totalBids}
-            </div>
-          </div>
+      <div className={`bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 animate-scaleIn stagger-${delay} cursor-pointer`}>
+        <div className="relative overflow-hidden group">
+          <img
+            src={auction.image?.url || auction.image}
+            alt={auction.title}
+            className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-700"
+          />
+          {showModerationBadge && (
+            <span
+              className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold text-white backdrop-blur-sm border ${
+                approvalState === 'pending'
+                  ? 'bg-amber-600/95 border-amber-400/50'
+                  : 'bg-red-600/95 border-red-400/50'
+              }`}
+            >
+              {approvalLabel(approvalState)}
+            </span>
+          )}
+          {auction.condition && (
+            <span className="absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold bg-blue-600 bg-opacity-90 text-white backdrop-blur-sm">
+              {auction.condition}
+            </span>
+          )}
         </div>
 
-        <div className="flex items-center gap-2 text-gray-600 text-sm">
-          <Clock className="w-4 h-4" />
-          Ends in <span className="font-semibold text-primary">{timeLeft}</span>
+        <div className="p-6">
+          <div className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-2">
+            {auction.category}
+          </div>
+          <h3 className="font-display text-2xl font-semibold text-primary mb-4">
+            {auction.title}
+          </h3>
+
+          {auction.description && (
+            <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+              {auction.description}
+            </p>
+          )}
+
+          <div className="grid grid-cols-2 gap-4 mb-4 p-4 bg-gray-50 rounded-xl">
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wider block mb-1">
+                Current Bid
+              </label>
+              <div className="font-display text-2xl font-bold text-primary">
+                NPR {currentBid.toLocaleString('en-NP')}
+              </div>
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 uppercase tracking-wider block mb-1">
+                Total Bids
+              </label>
+              <div className="font-display text-2xl font-bold text-primary">
+                {totalBids}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-gray-600 text-sm">
+            <Clock className="w-4 h-4" />
+            {timeLeft === 'Ended' ? (
+              <span className="font-semibold text-red-500">Ended</span>
+            ) : (
+              <>Ends in <span className="font-semibold text-primary">{timeLeft}</span></>
+            )}
+          </div>
         </div>
       </div>
-    </div>
     </Link>
   );
 };

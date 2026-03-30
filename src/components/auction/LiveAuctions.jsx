@@ -1,23 +1,38 @@
-import {Link} from '@tanstack/react-router'
-import { getMyAuctions } from '@/queries/auction'
+import { getPublicAuctions } from '@/queries/auction'
 import { useQuery } from '@tanstack/react-query'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Radio } from 'lucide-react'
 import React from 'react'
 import BidCard from '../home-page/BidCard'
-import { Skeleton } from '@/components/ui/skeleton' 
+import { Skeleton } from '@/components/ui/skeleton'
+import { Link } from '@tanstack/react-router'
 
-const MyAuctions = () => {
+const LiveAuctions = () => {
     const { data, isLoading, error } = useQuery({
-        queryKey: ['my-auctions'],
-        queryFn: getMyAuctions
+        queryKey: ['public-auctions'],
+        queryFn: getPublicAuctions
     })
+
+    const liveItems = data?.items?.filter((item) => {
+        const now = new Date()
+        const endTime = new Date(item.endTime)
+        const startTime = new Date(item.startTime)
+        return endTime > now && startTime <= now
+    }) ?? []
 
     return (
         <div className="space-y-8 px-6 lg:px-10 py-8">
             {/* Page Header */}
-            <h1 className="font-display text-3xl lg:text-4xl font-bold text-white">
-                My Auctions
-            </h1>
+            <div className="flex items-center gap-4">
+                <h1 className="font-display text-3xl lg:text-4xl font-bold text-white">
+                    Live Auctions
+                </h1>
+                {!isLoading && liveItems.length > 0 && (
+                    <span className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium px-4 py-1.5 rounded-full">
+                        <span className="w-2 h-2 bg-red-400 rounded-full animate-pulse inline-block"></span>
+                        {liveItems.length} Live Now
+                    </span>
+                )}
+            </div>
 
             {/* Loading State */}
             {isLoading && (
@@ -43,11 +58,11 @@ const MyAuctions = () => {
                         <div className="flex items-center gap-3 mb-4">
                             <AlertCircle className="w-6 h-6 text-red-500" />
                             <h3 className="text-xl font-semibold text-white">
-                                Failed to Load Your Auctions
+                                Failed to Load Live Auctions
                             </h3>
                         </div>
                         <p className="text-gray-400 mb-6">
-                            {error?.message || 'An error occurred while fetching your auctions. Please try again later.'}
+                            {error?.message || 'An error occurred while fetching live auctions. Please try again later.'}
                         </p>
                         <button
                             onClick={() => window.location.reload()}
@@ -59,51 +74,31 @@ const MyAuctions = () => {
                 </div>
             )}
 
-            {/* No Data State */}
-            {!isLoading && !error && (!data?.items || data.items.length === 0) && (
+            {/* No Live Auctions State */}
+            {!isLoading && !error && liveItems.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-16 px-4">
                     <div className="text-center max-w-md">
                         <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <svg
-                                className="w-10 h-10 text-gray-600"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                />
-                            </svg>
+                            <Radio className="w-10 h-10 text-gray-600" />
                         </div>
                         <h3 className="text-2xl font-semibold text-white mb-3">
-                            No Auctions Yet
+                            No Live Auctions
                         </h3>
                         <p className="text-gray-400 mb-6">
-                            You haven't created any auctions yet. Start by creating your first auction!
+                            There are no active auctions at the moment. Check back soon.
                         </p>
-                        <Link to="/create-auction">
-                       <button
-                            className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition-colors"
-                        >
-                            Create Auction
-                        </button>
-                       </Link>
                     </div>
                 </div>
             )}
 
-            {/* Auctions Grid */}
-            {!isLoading && !error && data?.items && data.items.length > 0 && (
+            {/* Live Auctions Grid */}
+            {!isLoading && !error && liveItems.length > 0 && (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {data.items.map((item, index) => (
-                        <BidCard 
-                            key={item._id} 
+                    {liveItems.map((item, index) => (
+                        <BidCard
+                            key={item._id}
                             auction={item}
                             delay={index + 1}
-                            showApprovalStatus
                         />
                     ))}
                 </div>
@@ -112,4 +107,4 @@ const MyAuctions = () => {
     )
 }
 
-export default MyAuctions
+export default LiveAuctions

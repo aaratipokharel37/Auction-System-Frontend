@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-const FilterTabs = () => {
-  const [activeTab, setActiveTab] = useState('All');
+const FilterTabs = ({ activeTab, setActiveTab }) => {
   const tabs = ['All', 'Ending Soon', 'New', 'Popular'];
 
   return (

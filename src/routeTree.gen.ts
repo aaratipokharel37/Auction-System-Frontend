@@ -16,7 +16,10 @@ import { Route as AuthenticatedAuctionDetailsRouteImport } from './routes/_authe
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthenticatedAuctionMyAuctionsRouteImport } from './routes/_authenticated/_auction/my-auctions'
+import { Route as AuthenticatedAuctionLiveAuctionsRouteImport } from './routes/_authenticated/_auction/live-auctions'
+import { Route as AuthenticatedAuctionHowItWorksRouteImport } from './routes/_authenticated/_auction/how-it-works'
 import { Route as AuthenticatedAuctionCreateAuctionRouteImport } from './routes/_authenticated/_auction/create-auction'
+import { Route as AuthenticatedAuctionContactUsRouteImport } from './routes/_authenticated/_auction/contact-us'
 import { Route as AuthenticatedAuctionAuctionAuctionIdRouteImport } from './routes/_authenticated/_auction/auction/$auctionId'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -54,10 +57,28 @@ const AuthenticatedAuctionMyAuctionsRoute =
     path: '/my-auctions',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedAuctionLiveAuctionsRoute =
+  AuthenticatedAuctionLiveAuctionsRouteImport.update({
+    id: '/_auction/live-auctions',
+    path: '/live-auctions',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAuctionHowItWorksRoute =
+  AuthenticatedAuctionHowItWorksRouteImport.update({
+    id: '/_auction/how-it-works',
+    path: '/how-it-works',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAuctionCreateAuctionRoute =
   AuthenticatedAuctionCreateAuctionRouteImport.update({
     id: '/_auction/create-auction',
     path: '/create-auction',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAuctionContactUsRoute =
+  AuthenticatedAuctionContactUsRouteImport.update({
+    id: '/_auction/contact-us',
+    path: '/contact-us',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedAuctionAuctionAuctionIdRoute =
@@ -72,7 +93,10 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/auction-details': typeof AuthenticatedAuctionDetailsRoute
+  '/contact-us': typeof AuthenticatedAuctionContactUsRoute
   '/create-auction': typeof AuthenticatedAuctionCreateAuctionRoute
+  '/how-it-works': typeof AuthenticatedAuctionHowItWorksRoute
+  '/live-auctions': typeof AuthenticatedAuctionLiveAuctionsRoute
   '/my-auctions': typeof AuthenticatedAuctionMyAuctionsRoute
   '/auction/$auctionId': typeof AuthenticatedAuctionAuctionAuctionIdRoute
 }
@@ -81,7 +105,10 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/auction-details': typeof AuthenticatedAuctionDetailsRoute
+  '/contact-us': typeof AuthenticatedAuctionContactUsRoute
   '/create-auction': typeof AuthenticatedAuctionCreateAuctionRoute
+  '/how-it-works': typeof AuthenticatedAuctionHowItWorksRoute
+  '/live-auctions': typeof AuthenticatedAuctionLiveAuctionsRoute
   '/my-auctions': typeof AuthenticatedAuctionMyAuctionsRoute
   '/auction/$auctionId': typeof AuthenticatedAuctionAuctionAuctionIdRoute
 }
@@ -93,7 +120,10 @@ export interface FileRoutesById {
   '/_auth/register': typeof AuthRegisterRoute
   '/_authenticated/auction-details': typeof AuthenticatedAuctionDetailsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/_auction/contact-us': typeof AuthenticatedAuctionContactUsRoute
   '/_authenticated/_auction/create-auction': typeof AuthenticatedAuctionCreateAuctionRoute
+  '/_authenticated/_auction/how-it-works': typeof AuthenticatedAuctionHowItWorksRoute
+  '/_authenticated/_auction/live-auctions': typeof AuthenticatedAuctionLiveAuctionsRoute
   '/_authenticated/_auction/my-auctions': typeof AuthenticatedAuctionMyAuctionsRoute
   '/_authenticated/_auction/auction/$auctionId': typeof AuthenticatedAuctionAuctionAuctionIdRoute
 }
@@ -104,7 +134,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/auction-details'
+    | '/contact-us'
     | '/create-auction'
+    | '/how-it-works'
+    | '/live-auctions'
     | '/my-auctions'
     | '/auction/$auctionId'
   fileRoutesByTo: FileRoutesByTo
@@ -113,7 +146,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/auction-details'
+    | '/contact-us'
     | '/create-auction'
+    | '/how-it-works'
+    | '/live-auctions'
     | '/my-auctions'
     | '/auction/$auctionId'
   id:
@@ -124,7 +160,10 @@ export interface FileRouteTypes {
     | '/_auth/register'
     | '/_authenticated/auction-details'
     | '/_authenticated/'
+    | '/_authenticated/_auction/contact-us'
     | '/_authenticated/_auction/create-auction'
+    | '/_authenticated/_auction/how-it-works'
+    | '/_authenticated/_auction/live-auctions'
     | '/_authenticated/_auction/my-auctions'
     | '/_authenticated/_auction/auction/$auctionId'
   fileRoutesById: FileRoutesById
@@ -185,11 +224,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuctionMyAuctionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/_auction/live-auctions': {
+      id: '/_authenticated/_auction/live-auctions'
+      path: '/live-auctions'
+      fullPath: '/live-auctions'
+      preLoaderRoute: typeof AuthenticatedAuctionLiveAuctionsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/_auction/how-it-works': {
+      id: '/_authenticated/_auction/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof AuthenticatedAuctionHowItWorksRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/_auction/create-auction': {
       id: '/_authenticated/_auction/create-auction'
       path: '/create-auction'
       fullPath: '/create-auction'
       preLoaderRoute: typeof AuthenticatedAuctionCreateAuctionRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/_auction/contact-us': {
+      id: '/_authenticated/_auction/contact-us'
+      path: '/contact-us'
+      fullPath: '/contact-us'
+      preLoaderRoute: typeof AuthenticatedAuctionContactUsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/_auction/auction/$auctionId': {
@@ -217,7 +277,10 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 interface AuthenticatedRouteChildren {
   AuthenticatedAuctionDetailsRoute: typeof AuthenticatedAuctionDetailsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedAuctionContactUsRoute: typeof AuthenticatedAuctionContactUsRoute
   AuthenticatedAuctionCreateAuctionRoute: typeof AuthenticatedAuctionCreateAuctionRoute
+  AuthenticatedAuctionHowItWorksRoute: typeof AuthenticatedAuctionHowItWorksRoute
+  AuthenticatedAuctionLiveAuctionsRoute: typeof AuthenticatedAuctionLiveAuctionsRoute
   AuthenticatedAuctionMyAuctionsRoute: typeof AuthenticatedAuctionMyAuctionsRoute
   AuthenticatedAuctionAuctionAuctionIdRoute: typeof AuthenticatedAuctionAuctionAuctionIdRoute
 }
@@ -225,8 +288,11 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAuctionDetailsRoute: AuthenticatedAuctionDetailsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedAuctionContactUsRoute: AuthenticatedAuctionContactUsRoute,
   AuthenticatedAuctionCreateAuctionRoute:
     AuthenticatedAuctionCreateAuctionRoute,
+  AuthenticatedAuctionHowItWorksRoute: AuthenticatedAuctionHowItWorksRoute,
+  AuthenticatedAuctionLiveAuctionsRoute: AuthenticatedAuctionLiveAuctionsRoute,
   AuthenticatedAuctionMyAuctionsRoute: AuthenticatedAuctionMyAuctionsRoute,
   AuthenticatedAuctionAuctionAuctionIdRoute:
     AuthenticatedAuctionAuctionAuctionIdRoute,

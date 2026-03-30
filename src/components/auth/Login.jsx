@@ -127,7 +127,7 @@ const Login = () => {
                   className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary transition-all ${
                     errors.email ? 'border-red-500' : 'border-gray-200 focus:border-secondary'
                   }`}
-                  placeholder="your.email@example.com"
+                  placeholder="yourname@gmail.com"
                 />
               </div>
               {errors.email && (
@@ -199,16 +199,12 @@ const Login = () => {
           {/* Sign Up Link */}
           <p className="mt-8 text-center text-gray-600">
             Don't have an account?{' '}
-            <Link to="/auth/register" className="text-yellow-500  font-semibold transition-colors">
+            <Link to="/register" className="text-yellow-500  font-semibold transition-colors">
               Sign up
             </Link>
           </p>
         </div>
 
-        {/* Footer Text */}
-        <p className="text-center text-gray-400 text-sm mt-8">
-          © 2024 EliteAuction. All rights reserved.
-        </p>
       </div>
     </div>
   );

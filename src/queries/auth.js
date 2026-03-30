@@ -20,3 +20,8 @@ export const login = async (data) => {
     throw new Error(err.response?.data?.message || "Login failed");
   }
 };
+
+export const getMe = async () => {
+  const res = await apiClient.get("/user/me");
+  return res.data.user;
+};

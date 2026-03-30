@@ -98,7 +98,7 @@ const Register = () => {
     if (!formData.email) e.email = "Email is required.";
     else if (!/\S+@\S+\.\S+/.test(formData.email)) e.email = "Invalid email address.";
     if (!formData.phone) e.phone = "Phone number is required.";
-    else if (!/^\+?[\d\s\-()]{6,}$/.test(formData.phone)) e.phone = "Invalid phone number.";
+    else if (!/^(\+977|977)?[9][7-9]\d{8}$/.test(formData.phone.replace(/\s/g, ""))) e.phone = "Enter a valid number (e.g. 97XXXXXXXX or 98XXXXXXXX).";
     if (!formData.address.trim()) e.address = "Address is required.";
     if (!formData.password) e.password = "Password is required.";
     else if (formData.password.length < 8) e.password = "At least 8 characters.";
@@ -107,9 +107,9 @@ const Register = () => {
     if (!formData.confirmPassword) e.confirmPassword = "Please confirm your password.";
     else if (formData.password !== formData.confirmPassword) e.confirmPassword = "Passwords do not match.";
     if (formData.role === "Auctioneer") {
-      if (!formData.bankAccountNumber.trim()) e.bankAccountNumber = "Bank account number required.";
-      if (!formData.bankAccountName.trim())  e.bankAccountName  = "Account holder name required.";
-      if (!formData.bankName.trim())         e.bankName         = "Bank name required.";
+      if (!formData.bankAccountNumber.trim()) e.bankAccountNumber = "Bank account number is required.";
+      if (!formData.bankAccountName.trim())  e.bankAccountName  = "Account holder name is required.";
+      if (!formData.bankName.trim())         e.bankName         = "Please select a bank.";
       if (!formData.paypalEmail)             e.paypalEmail      = "PayPal email is required.";
       else if (!/\S+@\S+\.\S+/.test(formData.paypalEmail)) e.paypalEmail = "Invalid PayPal email.";
     }
@@ -273,7 +273,7 @@ const Register = () => {
                 <Field label="Username" error={errors.userName}>
                   <div className="relative">
                     <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none" />
-                    <input className={inputCls(errors.userName)} name="userName" value={formData.userName} onChange={handleChange} placeholder="johndoe" />
+                    <input className={inputCls(errors.userName)} name="userName" value={formData.userName} onChange={handleChange} placeholder="rambahadur" />
                   </div>
                 </Field>
 
@@ -282,13 +282,14 @@ const Register = () => {
                   <Field label="Email Address" error={errors.email}>
                     <div className="relative">
                       <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none" />
-                      <input className={inputCls(errors.email)} type="email" name="email" value={formData.email} onChange={handleChange} placeholder="john@example.com" />
+                      <input className={inputCls(errors.email)} type="email" name="email" value={formData.email} onChange={handleChange} placeholder="yourname@gmail.com" />
                     </div>
                   </Field>
+
                   <Field label="Phone Number" error={errors.phone}>
                     <div className="relative">
                       <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none" />
-                      <input maxLength={10} className={inputCls(errors.phone)} type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1 (555) 123-4567" />
+                      <input maxLength={10} className={inputCls(errors.phone)} type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="97XXXXXXXX / 98XXXXXXXX" />
                     </div>
                   </Field>
                 </div>
@@ -297,7 +298,7 @@ const Register = () => {
                 <Field label="Address" error={errors.address}>
                   <div className="relative">
                     <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none" />
-                    <input className={inputCls(errors.address)} name="address" value={formData.address} onChange={handleChange} placeholder="123 Main St, New York, NY 10001" />
+                    <input className={inputCls(errors.address)} name="address" value={formData.address} onChange={handleChange} placeholder="Thamel, Kathmandu-01, Bagmati Province" />
                   </div>
                 </Field>
               </div>
@@ -356,19 +357,39 @@ const Register = () => {
                   <div className="space-y-4">
                     <SectionLabel>Bank Transfer</SectionLabel>
                     <div className="grid grid-cols-2 gap-4">
+                      
                       <Field label="Bank Name" error={errors.bankName}>
                         <div className="relative">
                           <Landmark size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none" />
-                          <input className={inputCls(errors.bankName)} name="bankName" value={formData.bankName} onChange={handleChange} placeholder="Chase Bank" />
+                          <select
+                          className={`${inputCls(errors.bankName)} appearance-none cursor-pointer`}
+                          name="bankName"
+                          value={formData.bankName}
+                          onChange={handleChange}
+                          >
+                            <option value="">Select Bank</option>
+                            <option value="Nabil Bank">Nabil Bank</option>
+                            <option value="NIC Asia Bank">NIC Asia Bank</option>
+                            <option value="Siddhartha Bank">Siddhartha Bank</option>
+                            </select>
+                            <svg
+                            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-stone-300"
+                            width="14" height="14" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" strokeWidth="2.5"
+                            >
+                              <path d="M6 9l6 6 6-6"/>
+                            </svg>
                         </div>
                       </Field>
+                      
                       <Field label="Account Holder Name" error={errors.bankAccountName}>
                         <div className="relative">
                           <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none" />
-                          <input className={inputCls(errors.bankAccountName)} name="bankAccountName" value={formData.bankAccountName} onChange={handleChange} placeholder="John Doe" />
+                          <input className={inputCls(errors.bankAccountName)} name="bankAccountName" value={formData.bankAccountName} onChange={handleChange} placeholder="Ram Bahadur Shrestha" />
                         </div>
                       </Field>
                     </div>
+
                     <Field label="Bank Account Number" error={errors.bankAccountNumber}>
                       <div className="relative">
                         <CreditCard size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none" />
@@ -382,7 +403,7 @@ const Register = () => {
                     <Field label="PayPal Email" error={errors.paypalEmail}>
                       <div className="relative">
                         <Wallet size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none" />
-                        <input className={inputCls(errors.paypalEmail)} type="email" name="paypalEmail" value={formData.paypalEmail} onChange={handleChange} placeholder="paypal@example.com" />
+                        <input className={inputCls(errors.paypalEmail)} type="email" name="paypalEmail" value={formData.paypalEmail} onChange={handleChange} placeholder="yourname@gmail.com" />
                       </div>
                     </Field>
                   </div>
@@ -404,9 +425,6 @@ const Register = () => {
           </div>
         </div>
 
-        <p className="text-center text-xs text-stone-400 mt-6 tracking-wide">
-          © 2024 EliteAuction · All rights reserved
-        </p>
       </div>
     </div>
   );

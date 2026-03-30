@@ -20,13 +20,16 @@ const CreateAuction = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState('');
 
-  // Create auction mutation
   const createAuctionMutation = useMutation({
     mutationFn: (submitData) => createAuction(submitData),
     onSuccess: (data) => {
-      toast.success(data.message || 'Auction created successfully!');
+      toast.success(
+        data.message ||
+          'Your listing was submitted. It will appear on the site after an admin approves it.'
+      );
       queryClient.invalidateQueries({ queryKey: ['my-auctions'] });
       queryClient.invalidateQueries({ queryKey: ['all-auctions'] });
+      queryClient.invalidateQueries({ queryKey: ['public-auctions'] });
       navigate({ to: '/my-auctions' });
     },
     onError: (error) => {
@@ -77,7 +80,6 @@ const CreateAuction = () => {
     e.preventDefault();
     setError('');
 
-    // Validation
     if (!selectedFile) {
       setError('Please upload an auction item image');
       return;
@@ -97,7 +99,6 @@ const CreateAuction = () => {
       return;
     }
 
-    // Create FormData
     const submitData = new FormData();
     submitData.append('title', formData.title);
     submitData.append('category', formData.category);
@@ -108,17 +109,15 @@ const CreateAuction = () => {
     submitData.append('endTime', new Date(formData.endTime));
     submitData.append('image', selectedFile);
 
-    // Trigger mutation
     createAuctionMutation.mutate(submitData);
   };
 
-  // Set minimum date to now
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   const minDateTime = now.toISOString().slice(0, 16);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Floating Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
@@ -252,19 +251,24 @@ const CreateAuction = () => {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Starting Bid <span className="text-red-500">*</span>
+                    Starting Bid (NPR) <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="number"
-                    name="startingBid"
-                    value={formData.startingBid}
-                    onChange={handleInputChange}
-                    min="0"
-                    step="0.01"
-                    required
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
-                    placeholder="Enter starting bid amount"
-                  />
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">
+                      NPR
+                    </span>
+                    <input
+                      type="number"
+                      name="startingBid"
+                      value={formData.startingBid}
+                      onChange={handleInputChange}
+                      min="0"
+                      step="1"
+                      required
+                      className="w-full pl-14 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
+                      placeholder="e.g., 5000"
+                    />
+                  </div>
                 </div>
               </div>
 

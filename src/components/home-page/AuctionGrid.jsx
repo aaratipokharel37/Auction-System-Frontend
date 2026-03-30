@@ -1,16 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import FilterTabs from './FilterTabs';
 import BidCard from './BidCard';
 import { useQuery } from '@tanstack/react-query';
-import { getAllAuctions } from '@/queries/auction';
+import { getPublicAuctions } from '@/queries/auction';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
 
 const AuctionGrid = () => {
+  const [activeTab, setActiveTab] = useState('All');
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["all-auctions"],
-    queryFn: getAllAuctions
+    queryKey: ["public-auctions"],
+    queryFn: getPublicAuctions
   });
+
+  const getFilteredAuctions = () => {
+    if (!data?.items) return [];
+
+    const now = new Date();
+
+    switch (activeTab) {
+      case 'Ending Soon':
+        return [...data.items]
+          .filter(a => new Date(a.endTime) > now)
+          .sort((a, b) => new Date(a.endTime) - new Date(b.endTime));
+
+          case 'New':
+            return data.items.filter(a => a.condition === 'New');
+
+      case 'Popular':
+        return [...data.items]
+          .sort((a, b) => (b.bids?.length || 0) - (a.bids?.length || 0));
+
+      default:
+        return data.items;
+    }
+  };
+
+  const filteredAuctions = getFilteredAuctions();
 
   return (
     <>
@@ -19,7 +46,7 @@ const AuctionGrid = () => {
         <h2 className="font-display text-4xl lg:text-5xl font-bold text-white">
           Featured Auctions
         </h2>
-        <FilterTabs />
+        <FilterTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
 
       {/* Loading State */}
@@ -63,7 +90,7 @@ const AuctionGrid = () => {
       )}
 
       {/* No Data State */}
-      {!isLoading && !error && (!data?.items || data.items.length === 0) && (
+      {!isLoading && !error && filteredAuctions.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 px-4">
           <div className="text-center max-w-md">
             <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -92,12 +119,12 @@ const AuctionGrid = () => {
       )}
 
       {/* Bid Grid */}
-      {!isLoading && !error && data?.items && data.items.length > 0 && (
+      {!isLoading && !error && filteredAuctions.length > 0 && (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {data.items.map((auction, index) => (
-            <BidCard 
-              key={auction.id} 
-              auction={auction} 
+          {filteredAuctions.map((auction, index) => (
+            <BidCard
+              key={auction.id}
+              auction={auction}
               delay={index + 1}
             />
           ))}
